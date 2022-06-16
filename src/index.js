@@ -1,7 +1,11 @@
 import './css/styles.css';
+
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
 import Axios from 'axios';
-import { fetchCards } from './fetchCards';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { fetchCards } from './fetchCards';
 
 // const API_KEY = '28090612-053d38b519fb99dbfe43ba7b5';
 // const BASE_URL = 'https://pixabay.com/api/';
@@ -41,19 +45,21 @@ function renderCardOfList(images) {
         }) => {
           return `
   <div class="photo-card">
-    <img src="${largeImageURL}" alt="${tags}" loading="lazy" />
+    <a href="${webformatURL}">
+      <img src="${largeImageURL}" alt="${tags}" loading="lazy" />
+    </a>
     <div class="info">
-      <p class="info-item">
-        <b>Likes${likes}</b>
+      <p class="info-item">${likes}
+        <b>Likes</b>
       </p>
-      <p class="info-item">
-        <b>Views${views}</b>
+      <p class="info-item">${views}
+        <b>Views</b>
       </p>
-      <p class="info-item">
-        <b>Comments${comments}</b>
+      <p class="info-item">${comments}
+        <b>Comments</b>
       </p>
-      <p class="info-item">
-        <b>Downloads${downloads}</b>
+      <p class="info-item">${downloads}
+        <b>Downloads</b>
       </p>
     </div>
   </div>`;
@@ -63,4 +69,7 @@ function renderCardOfList(images) {
 
     $refs.container.insertAdjacentHTML('beforeend', markup);
   }
+
+  const card = new SimpleLightbox('.gallery a');
+  card.refresh();
 }

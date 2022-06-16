@@ -75,6 +75,8 @@ img {
   display: grid;
   grid-template-columns: auto auto auto auto;
 
+  padding: 30px 20px;
+
   margin-top: -20px;
   margin-left: -20px;
   margin-bottom: 20px;
@@ -83,9 +85,15 @@ img {
 .photo-card {
   margin-top: 20px;
   margin-left: 20px;
-  padding: 10px;
 
   border: 1px solid #eeeeee;
+}
+
+.info {
+  display: flex;
+  flex-direction: column-reverse;
+
+  padding: 10px;
 }
 
 .load-more {
@@ -102,4 +110,9 @@ img {
   color: #fafafa;
   background-color: #008b8b;
   transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.load-more:hover {
+  color: #f5f5f5;
+  background-color: rgb(0, 139, 139, 0.9);
 }
