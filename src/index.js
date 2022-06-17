@@ -7,9 +7,6 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
-// const API_KEY = '28090612-053d38b519fb99dbfe43ba7b5';
-// const BASE_URL = 'https://pixabay.com/api/';
-
 const $refs = {
   form: document.querySelector('#search-form'),
   container: document.querySelector('.gallery'),
@@ -20,13 +17,14 @@ $refs.form.addEventListener('submit', onSubmitForm);
 $refs.loadButton.addEventListener('click', onLoadMore);
 
 const cardsApiService = new CardsApiService();
-$refs.loadButton.classList.add('is-hidden');
-// $refs.loadButton.style.display = 'none';
+showLoadMoreButton(false);
 
 function onSubmitForm(event) {
   event.preventDefault();
 
   cardsApiService.searchBar = $refs.form.searchQuery.value;
+  cardsApiService.isSearch = true;
+
   if (cardsApiService.searchBar === '') {
     Notify.failure('Enter the search value!');
     return;
@@ -35,79 +33,101 @@ function onSubmitForm(event) {
   cardsApiService.resetPage();
   cardsApiService.fetchCards().then(hits => {
     clearCardsContainer();
-    renderCardOfList(hits);
-    $refs.loadButton.classList.remove('is-hidden');
+    handleListOfCards(hits);
   });
 }
 
 function onLoadMore() {
-  cardsApiService.fetchCards().then(renderCardOfList);
+  cardsApiService.isSearch = false;
+  cardsApiService.fetchCards().then(handleListOfCards);
 }
 
-function renderCardOfList(images) {
-  // console.log(images.totalHits);
-  // console.log(images.hits.length);
+function showLoadMoreButton(enabled) {
+  $refs.loadButton.style.display = enabled ? 'block' : 'none';
+}
 
-  if (images.hits.length === 0) {
+function renderCards(hits) {
+  const markup = hits
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => {
+        return `
+<div class="photo-card">
+<a class="photo-card__link" href="${webformatURL}">
+  <img class="photo-card__img" src="${largeImageURL}" alt="${tags}" loading="lazy" />
+</a>
+<div class="info">
+  <p class="info-item">
+    <b>Likes</b>
+    ${likes}
+  </p>
+  <p class="info-item">
+    <b>Views</b>
+    ${views}
+  </p>
+  <p class="info-item">
+    <b>Comments</b>
+    ${comments}
+  </p>
+  <p class="info-item">
+    <b>Downloads</b>
+    ${downloads}
+  </p>
+</div>
+</div>`;
+      }
+    )
+    .join('');
+
+  $refs.container.insertAdjacentHTML('beforeend', markup);
+}
+
+function scrollCards() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight,
+    behavior: 'smooth',
+  });
+}
+
+function handleListOfCards(images) {
+  if (images.totalHits === 0) {
+    showLoadMoreButton(false);
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
   } else {
-    const markup = images.hits
-      .map(
-        ({
-          webformatURL,
-          largeImageURL,
-          tags,
-          likes,
-          views,
-          comments,
-          downloads,
-        }) => {
-          return `
-  <div class="photo-card">
-    <a class="photo-card__link" href="${webformatURL}">
-      <img class="photo-card__img" src="${largeImageURL}" alt="${tags}" loading="lazy" />
-    </a>
-    <div class="info">
-      <p class="info-item">
-        <b>Likes</b>
-        ${likes}
-      </p>
-      <p class="info-item">
-        <b>Views</b>
-        ${views}
-      </p>
-      <p class="info-item">
-        <b>Comments</b>
-        ${comments}
-      </p>
-      <p class="info-item">
-        <b>Downloads</b>
-        ${downloads}
-      </p>
-    </div>
-  </div>`;
-        }
-      )
-      .join('');
+    showLoadMoreButton(true);
+    renderCards(images.hits);
 
-    $refs.container.insertAdjacentHTML('beforeend', markup);
+    if (cardsApiService.isSearch) {
+      Notify.success(`Hooray! We found ${images.totalHits} images.`);
+    } else {
+      scrollCards();
+    }
 
-    // if (images.hits.length >= images.totalHits) {
-    //   console.log(images.totalHits);
-    //   console.log(images.hits.length);
-    //   // $refs.loadButton.style.display = 'none';
-    //   Notify.warning(
-    //     "We're sorry, but you've reached the end of search results."
-    //   );
-    // }
-
-    if (images.totalHits < cardsApiService.per_page) {
-      $refs.loadButton.style.display = 'none';
+    if (images.hits.length < cardsApiService.per_page) {
+      showLoadMoreButton(false);
+      Notify.warning(
+        "We're sorry, but you've reached the end of search results."
+      );
     }
   }
 
+  simpleLightboxLibrary();
+}
+
+function simpleLightboxLibrary() {
   const card = new SimpleLightbox('.gallery a');
   card.refresh();
 }
@@ -115,5 +135,3 @@ function renderCardOfList(images) {
 function clearCardsContainer() {
   $refs.container.innerHTML = '';
 }
-
-// function allLoadCards

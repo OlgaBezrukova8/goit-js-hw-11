@@ -5,10 +5,10 @@ const BASE_URL = 'https://pixabay.com/api/';
 
 export default class CardsApiService {
   constructor() {
-    console.log(this);
     this.searchBar = '';
     this.page = 1;
     this.per_page = 40;
+    this.is_search = false;
   }
 
   async fetchCards() {
@@ -17,7 +17,6 @@ export default class CardsApiService {
     );
     const card = await response.json();
     this.incrementPage();
-
     return card;
     //   return fetch(
     //     `${BASE_URL}?key=${API_KEY}&q=${name}&image_type=photo&orientation=horizontal&safesearch=true`
@@ -32,11 +31,11 @@ export default class CardsApiService {
     this.page = 1;
   }
 
-  get search() {
-    return this.searchBar;
+  get isSearch() {
+    return this.is_search;
   }
 
-  set search(newSearch) {
-    this.searchBar += newSearch;
+  set isSearch(search) {
+    this.is_search = search;
   }
 }
