@@ -7,20 +7,20 @@ export default class CardsApiService {
   constructor() {
     this.searchBar = '';
     this.page = 1;
-    this.per_page = 40;
-    this.is_search = false;
+    this.perPage = 40;
+    this.m_isSearch = false;
   }
 
   async fetchCards() {
-    const response = await fetch(
-      `${BASE_URL}?key=${API_KEY}&q=${this.searchBar}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=${this.per_page}`
-    );
-    const card = await response.json();
-    this.incrementPage();
-    return card;
-    //   return fetch(
-    //     `${BASE_URL}?key=${API_KEY}&q=${name}&image_type=photo&orientation=horizontal&safesearch=true`
-    //   ).then(res => res.json());
+    try {
+      const response = await Axios.get(
+        `${BASE_URL}?key=${API_KEY}&q=${this.searchBar}&image_type=photo&orientation=horizontal&safesearch=true&page=${this.page}&per_page=${this.perPage}`
+      );
+      this.incrementPage();
+      return response.data;
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 
   incrementPage() {
@@ -32,10 +32,10 @@ export default class CardsApiService {
   }
 
   get isSearch() {
-    return this.is_search;
+    return this.m_isSearch;
   }
 
   set isSearch(search) {
-    this.is_search = search;
+    this.m_isSearch = search;
   }
 }

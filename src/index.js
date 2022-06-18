@@ -1,6 +1,5 @@
 import './css/styles.css';
 import CardsApiService from './fetchCards';
-import Axios from 'axios';
 
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -19,7 +18,7 @@ $refs.loadButton.addEventListener('click', onLoadMore);
 const cardsApiService = new CardsApiService();
 showLoadMoreButton(false);
 
-function onSubmitForm(event) {
+async function onSubmitForm(event) {
   event.preventDefault();
 
   cardsApiService.searchBar = $refs.form.searchQuery.value;
@@ -31,15 +30,29 @@ function onSubmitForm(event) {
   }
 
   cardsApiService.resetPage();
-  cardsApiService.fetchCards().then(hits => {
-    clearCardsContainer();
-    handleListOfCards(hits);
-  });
+
+  try {
+    const fetchCards = await cardsApiService.fetchCards();
+    const res = await Promise.all([
+      clearCardsContainer(),
+      handleListOfCards(fetchCards),
+    ]);
+    return fetchCards;
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
-function onLoadMore() {
+async function onLoadMore() {
   cardsApiService.isSearch = false;
-  cardsApiService.fetchCards().then(handleListOfCards);
+
+  try {
+    const fetchCards = await cardsApiService.fetchCards();
+    await handleListOfCards(fetchCards);
+    return fetchCards;
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
 function showLoadMoreButton(enabled) {
@@ -116,11 +129,13 @@ function handleListOfCards(images) {
       scrollCards();
     }
 
-    if (images.hits.length < cardsApiService.per_page) {
+    if (images.hits.length < cardsApiService.perPage) {
+      if (images.total > cardsApiService.perPage) {
+        Notify.warning(
+          "We're sorry, but you've reached the end of search results."
+        );
+      }
       showLoadMoreButton(false);
-      Notify.warning(
-        "We're sorry, but you've reached the end of search results."
-      );
     }
   }
 
