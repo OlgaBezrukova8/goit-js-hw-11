@@ -73,8 +73,8 @@ function renderCards(hits) {
       }) => {
         return `
 <div class="photo-card">
-<a class="photo-card__link" href="${webformatURL}">
-  <img class="photo-card__img" src="${largeImageURL}" alt="${tags}" loading="lazy" />
+<a class="photo-card__link" href="${largeImageURL}">
+  <img class="photo-card__img" src="${webformatURL}" alt="${tags}" loading="lazy" />
 </a>
 <div class="info">
   <p class="info-item">
