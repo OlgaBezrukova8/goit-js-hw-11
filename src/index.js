@@ -21,6 +21,7 @@ showLoadMoreButton(false);
 async function onSubmitForm(event) {
   event.preventDefault();
 
+  showLoadMoreButton(false);
   cardsApiService.searchBar = $refs.form.searchQuery.value;
   cardsApiService.isSearch = true;
 
